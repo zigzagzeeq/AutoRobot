@@ -1,11 +1,4 @@
 # AutoRobot
-# AutoRobot
-# Speech & Dialogue Engineer Implementation Report
-**Role: Speech & Dialogue Engineer - Dexter**
-
-## Executive Summary
-
-This report details the implementation of the Speech & Dialogue subsystem for the emotion-aware interactive robot system. The subsystem handles voice interaction logic through Speech-to-Text (STT), Text-to-Speech (TTS), and a rule-based response engine that provides contextually appropriate responses based on detected emotions and user input.
 
 ## 1. System Architecture Overview
 
