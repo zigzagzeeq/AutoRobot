@@ -61,7 +61,7 @@ cv2.destroyAllWindows()
 
 class FacialDetector:
     def __init__(self):
-        rospy.init_node('robot_face_detector', anonymous=False)
+        rospy.init_node('face_detector', anonymous=False)
         self.face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
     def detect_faces(self, frame):

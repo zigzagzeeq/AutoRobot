@@ -38,8 +38,4 @@ class FacialEmotionDetector:
         predictions = self.model.predict(face_image)
         predicted_index = np.argmax(predictions[0])
         predicted_emotion = self.emotion_labels[predicted_index]
-        self.update_emotion_frequency(predicted_emotion)
         return self.emotion_labels[predicted_index]
-    
-    def get_emotion_frequency(self):
-        return self.emotion_freq
