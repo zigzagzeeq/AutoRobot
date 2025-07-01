@@ -1,0 +1,10 @@
+# TODO: List out all the python packages that are required for the robot to run
+pyaudio
+speech_recognition
+opencv-python
+numpy
+tensorflow
+requests
+scipy
+pillow
+rospy

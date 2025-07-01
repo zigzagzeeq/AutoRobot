@@ -1,0 +1,25 @@
+# TODO: Create a launch file for the robotEmotion.launch
+# This file will launch the robotEmotion node which will handle the emotion detection and response generation.
+<launch>
+    <node name="robotEmotion" pkg="robot" type="RobotEmotion.py" output="screen">
+        <param name="topicName" value="/robot/emotion"/>
+        <param name="publisherNodeName" value="robotEmotionPublisher"/>
+        <param name="subscriberNodeName" value="robotEmotionSubscriber"/>
+    </node>
+    <node name="robotResponse" pkg="robot" type="RobotResponse.py" output="screen">
+        <param name="topicName" value="/robot/response"/>
+        <param name="publisherNodeName" value="robotResponsePublisher"/>
+        <param name="subscriberNodeName" value="robotResponseSubscriber"/>
+    </node>
+    <node name="facialDetector" pkg="robot" type="FacialDetector.py
+" output="screen">
+        <param name="topicName" value="/robot/facial_detection"/>
+        <param name="publisherNodeName" value="facialDetectorPublisher"/>
+        <param name="subscriberNodeName" value="facialDetectorSubscriber"/>
+    </node>
+    <node name="visionRobot" pkg="robot" type="vision_robot.py" output="screen">
+        <param name="publisherNodeName" value="visionRobotPublisher"/>
+        <param name="subscriberNodeName" value="visionRobotSubscriber"/>
+        <param name="topicName" value="/robot/vision"/>
+    </node>
+</launch>

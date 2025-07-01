@@ -6,38 +6,7 @@ class RobotResponse:
         """Initialize the RobotResponse class."""
         print("🤖 RobotResponse initialized.")
         self.emotion_dict = emotion_dict
-
-    def respond_to_emotion(self):
-        """
-        Generate a response based on the detected emotions.
-        If there is a tie, respond with mixed emotions.
-        If neutral is the highest, ignore it and focus on other emotions.
-        """
-        # dictionary preprocessing
-        # Remove neutral if it exists
-        if 'neutral' in self.emotion_dict:
-            del self.emotion_dict['neutral']
-        
-        # If no emotions left after removing neutral
-        if not self.emotion_dict:
-            return "No emotion detected.", False
-        
-        # Find the list of emotions with highest frequency
-        # Sort emotions by frequency
-        sorted_emotions = sorted(self.emotion_dict.items(), key=lambda x: x[1], reverse=True)
-        highest_freq = sorted_emotions[0][1]
-
-        # Check for ties
-        tied_emotions = [emotion for emotion in sorted_emotions if emotion[1] == highest_freq]
-        
-        if len(tied_emotions) > 1:
-            response = "I feel like you all are feeling mixed emotions like " + ", ".join([emotion[0] for emotion in tied_emotions])
-
-        else:
-            response = "I can detect most of you here are feeling " + tied_emotions[0][0] +". "
-
-        response += "What made you feel that way? Please tell me in a few words."
-        return response, True
+        self.emotion = None
 
     def generate_emotion_response(self, emotion_dict):
             """Generate appropriate response based on detected emotion"""
@@ -97,10 +66,11 @@ class RobotResponse:
             elif len(tied_emotions) == 1:
                 emotion = tied_emotions[0][0]
                 # Return a random response based on the detected emotion
-            
+            self.emotion = emotion
             return random.choice(responses.get(emotion, ["I can sense your emotions. Let's talk about how you're feeling."])), True
 
-    def generate_llm_response(self, user_input, emotion):
+    # TODO: Refactor this method to use LLM for generating responses
+    def generate_llm_response(self, user_input, suggested_activity=None):
             """Generate contextual response based on user input and emotion"""
             # Simple rule-based responses (in real scenario, you'd use an LLM API)
             suggestions = {
@@ -131,10 +101,13 @@ class RobotResponse:
                 ]
             }
             
-            base_response = random.choice(suggestions.get(emotion, [
+            base_response = random.choice(suggestions.get(self.emotion, [
                 "Thank you for sharing that with me. Your feelings are valid and important.",
                 "I appreciate you opening up about this. It takes courage to express our emotions.",
                 "That gives me better insight into how you're feeling. You're not alone in this."
             ]))
+
+            if suggested_activity:
+                base_response += f" Would you like to try a {suggested_activity} to help with your {self.emotion}?"
 
             return base_response

@@ -3,7 +3,7 @@ import time
 class ActivityDemo:
     """Class to handle activity demonstrations based on user emotion"""
     
-    def __init__(self, emotion):
+    def __init__(self, emotion = 'neutral'):
         self.emotion = emotion
         self.ifWanted = False
         self.activity = None
