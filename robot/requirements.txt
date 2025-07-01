@@ -1,6 +1,6 @@
 # TODO: List out all the python packages that are required for the robot to run
 pyaudio
-speech_recognition
+SpeechRecognition
 opencv-python
 numpy
 tensorflow
