@@ -1,9 +1,6 @@
 import cv2
 import numpy as np
 import tensorflow as tf
-from EmotionDetector import FacialEmotionDetector
-import rospy
-
 model = tf.keras.models.load_model("robot\\test_auc_0.89.keras")
 
 # Emotion labels (adjust to match your model's output order)
@@ -14,8 +11,6 @@ face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_fronta
 
 # Start webcam
 cap = cv2.VideoCapture(0)
-emotion_detector = FacialEmotionDetector()
-
 x = """
 
 while True:
@@ -61,7 +56,7 @@ cv2.destroyAllWindows()
 
 class FacialDetector:
     def __init__(self):
-        rospy.init_node('face_detector', anonymous=False)
+        # rospy.init_node('face_detector', anonymous=False)
         self.face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
     def detect_faces(self, frame):
@@ -78,17 +73,4 @@ class FacialDetector:
         faces = self.detect_faces(frame)
         frame_with_faces = self.draw_faces(frame, faces)
         return frame_with_faces, faces
-    
-# Example usage:
-# facial_detector = FacialDetector()
-# while True:
-#     ret, frame = cap.read()
-#     if not ret:
-#         break
-#     frame_with_faces, faces = facial_detector.process_frame(frame)
-#     cv2.imshow('Face Detection', frame_with_faces)
-#     if cv2.waitKey(1) & 0xFF == ord('q'):
-#         break
-# cap.release()
-# cv2.destroyAllWindows()
 

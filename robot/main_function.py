@@ -1,4 +1,6 @@
 import rospy
+import time
+import cv2
 
 # Intialize the ROS node
 rospy.init_node('main_function', anonymous=False)
@@ -11,17 +13,56 @@ from robot.EmotionDetector import FacialEmotionDetector
 facial_detector = FacialDetector()
 emotion_detector = FacialEmotionDetector()
 
+
+time.sleep(5)
+
+
 def main():
+    cap = cv2.VideoCapture(0) # Change to 1 if want to use external webcam, 0 for laptop webcam
+
+    if not cap.isOpened():
+        rospy.logerr("Could not open video device")
+        return
+    rospy.loginfo("Video device opened successfully.")
+
+    # Main loop for detecting faces and emotions
+    while not rospy.is_shutdown():
+        ret, frame = cap.read()
+        if not ret:
+            rospy.logerr("Failed to read frame from video device")
+            break
+        
+        # Detect faces in the frame
+        faces = facial_detector.detect_faces(frame)
+        emotion_freq = dict()
+
+        if len(faces) > 0:
+            rospy.loginfo(f"Detected {len(faces)} face(s).")
+            for (x, y, w, h) in faces:
+                face = frame[y:y + h, x:x + w]
+                emotion = emotion_detector.predict_emotion(face)
+                if emotion not in emotion_freq:
+                    emotion_freq[emotion] = 0
+                emotion_freq[emotion] += 1
+                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                cv2.putText(frame, emotion, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 0), 2)
+        else:
+            rospy.loginfo("No faces detected.")
+
+        # Display the frame with detected faces and emotions
+        cv2.imshow('Emotion Detection - Press Q to Quit', frame)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+        
     rospy.loginfo("Robot main function started.")
-    
-    # Start the facial detection and emotion detection processes
-    facial_detector.start_detection()
-    emotion_detector.start_detection()
 
     rospy.loginfo("Robot is now detecting faces and emotions.")
 
+
     # Keep the node running until it is shut down
     rospy.spin()
+
+
 
 # 1. Activate the robot
 # 2. Start the main function
