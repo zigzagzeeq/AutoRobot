@@ -4,7 +4,7 @@
   <version>1.0.0</version>
   <description>Emotional Robot Assistant Package</description>
 
-  <maintainer email="your@email.com">Your Name</maintainer>
+  <maintainer email="mustar@todo.todo">mustar</maintainer>
   <license>MIT</license>
 
   <buildtool_depend>catkin</buildtool_depend>
