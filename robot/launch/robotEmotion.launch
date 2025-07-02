@@ -1,25 +1,61 @@
-# TODO: Create a launch file for the robotEmotion.launch
-# This file will launch the robotEmotion node which will handle the emotion detection and response generation.
+<?xml version="1.0"?>
 <launch>
+    <!-- Emotional Robot Launch Configuration -->
+    <!-- This launch file coordinates all emotion detection and response components -->
+    
+    <!-- Arguments for configuration -->
+    <arg name="debug" default="false" />
+    <arg name="camera_topic" default="/usb_cam/image_raw" />
+    <arg name="audio_device" default="default" />
+    
+    <!-- Core Emotion Detection Node -->
     <node name="robotEmotion" pkg="robot" type="RobotEmotion.py" output="screen">
         <param name="topicName" value="/robot/emotion"/>
         <param name="publisherNodeName" value="robotEmotionPublisher"/>
         <param name="subscriberNodeName" value="robotEmotionSubscriber"/>
+        <param name="emotion_confidence_threshold" value="0.6"/>
+        <param name="emotion_history_size" value="50"/>
+        <param name="analysis_rate" value="10.0"/>
     </node>
+    
+    <!-- Robot Response Generation Node -->
     <node name="robotResponse" pkg="robot" type="RobotResponse.py" output="screen">
         <param name="topicName" value="/robot/response"/>
         <param name="publisherNodeName" value="robotResponsePublisher"/>
         <param name="subscriberNodeName" value="robotResponseSubscriber"/>
+        <param name="response_delay" value="1.0"/>
+        <param name="tts_enabled" value="true"/>
+        <param name="voice_rate" value="150"/>
     </node>
-    <node name="facialDetector" pkg="robot" type="FacialDetector.py
-" output="screen">
+    
+    <!-- Facial Detection Node -->
+    <node name="facialDetector" pkg="robot" type="FacialDetector.py" output="screen">
         <param name="topicName" value="/robot/facial_detection"/>
         <param name="publisherNodeName" value="facialDetectorPublisher"/>
         <param name="subscriberNodeName" value="facialDetectorSubscriber"/>
+        <param name="camera_topic" value="$(arg camera_topic)"/>
+        <param name="detection_rate" value="30.0"/>
+        <param name="min_face_size" value="30"/>
     </node>
+    
+    <!-- Vision Robot Integration Node -->
     <node name="visionRobot" pkg="robot" type="vision_robot.py" output="screen">
         <param name="publisherNodeName" value="visionRobotPublisher"/>
         <param name="subscriberNodeName" value="visionRobotSubscriber"/>
         <param name="topicName" value="/robot/vision"/>
+        <param name="camera_topic" value="$(arg camera_topic)"/>
+        <param name="processing_rate" value="15.0"/>
     </node>
+    
+    <!-- Emotion Coordination Node -->
+    <node name="emotionCoordinator" pkg="robot" type="EmotionCoordinator.py" output="screen">
+        <param name="coordination_rate" value="5.0"/>
+        <param name="session_timeout" value="300.0"/>
+    </node>
+    
+    <!-- Debug and Monitoring (optional) -->
+    <node name="emotionMonitor" pkg="robot" type="EmotionMonitor.py" output="screen" if="$(arg debug)">
+        <param name="monitor_rate" value="1.0"/>
+    </node>
+    
 </launch>
