@@ -1,21 +1,23 @@
 <?xml version="1.0"?>
 <launch>
     <!-- Emotional Robot Launch Configuration -->
-    <!-- This launch file coordinates all emotion detection and response components -->
+    <!-- This file coordinates all emotion detection and response components -->
     
     <!-- Arguments for configuration -->
     <arg name="debug" default="false" />
     <arg name="camera_topic" default="/usb_cam/image_raw" />
     <arg name="audio_device" default="default" />
+    <arg name="vision_model_path" default="$(find robot)/vision/B/model.h5" />
     
     <!-- Core Emotion Detection Node -->
-    <node name="robotEmotion" pkg="robot" type="RobotEmotion.py" output="screen">
+    <node name="robotEmotion" pkg="robot" type="EmotionalRobot.py" output="screen">
         <param name="topicName" value="/robot/emotion"/>
         <param name="publisherNodeName" value="robotEmotionPublisher"/>
         <param name="subscriberNodeName" value="robotEmotionSubscriber"/>
         <param name="emotion_confidence_threshold" value="0.6"/>
         <param name="emotion_history_size" value="50"/>
         <param name="analysis_rate" value="10.0"/>
+        <param name="model_path" value="$(find robot)/scripts/test_auc_0.89.keras"/>
     </node>
     
     <!-- Robot Response Generation Node -->
@@ -36,6 +38,7 @@
         <param name="camera_topic" value="$(arg camera_topic)"/>
         <param name="detection_rate" value="30.0"/>
         <param name="min_face_size" value="30"/>
+        <param name="keras_model_path" value="$(find robot)/scripts/test_auc_0.89.keras"/>
     </node>
     
     <!-- Vision Robot Integration Node -->
@@ -45,17 +48,57 @@
         <param name="topicName" value="/robot/vision"/>
         <param name="camera_topic" value="$(arg camera_topic)"/>
         <param name="processing_rate" value="15.0"/>
+        <param name="vision_model_path" value="$(arg vision_model_path)"/>
     </node>
     
-    <!-- Emotion Coordination Node -->
-    <node name="emotionCoordinator" pkg="robot" type="EmotionCoordinator.py" output="screen">
-        <param name="coordination_rate" value="5.0"/>
-        <param name="session_timeout" value="300.0"/>
+    <!-- Emotion Detector Node (using your existing EmotionDetector.py) -->
+    <node name="emotionDetector" pkg="robot" type="EmotionDetector.py" output="screen">
+        <param name="camera_topic" value="$(arg camera_topic)"/>
+        <param name="model_path" value="$(find robot)/scripts/test_auc_0.89.keras"/>
+        <param name="detection_rate" value="20.0"/>
+        <param name="publish_topic" value="/robot/emotion_raw"/>
+    </node>
+    
+    <!-- Speech Processing Node -->
+    <node name="speechRobot" pkg="robot" type="speech_robot.py" output="screen">
+        <param name="emotion_topic" value="/robot/emotion"/>
+        <param name="response_topic" value="/robot/response"/>
+        <param name="audio_device" value="$(arg audio_device)"/>
+        <param name="language" value="en"/>
+    </node>
+    
+    <!-- Speech Listen Node -->
+    <node name="speakListen" pkg="robot" type="SpeakListen.py" output="screen">
+        <param name="listen_topic" value="/robot/speech_input"/>
+        <param name="speak_topic" value="/robot/speech_output"/>
+        <param name="timeout" value="10.0"/>
+    </node>
+    
+    <!-- Activity Demo Node for guided activities -->
+    <node name="activityDemo" pkg="robot" type="ActivityDemo.py" output="screen">
+        <param name="activity_topic" value="/robot/activity"/>
+        <param name="emotion_topic" value="/robot/emotion"/>
+        <param name="response_topic" value="/robot/response"/>
+    </node>
+    
+    <!-- Vision Processing Node (alternative vision system) -->
+    <node name="visionProcessor" pkg="robot" type="vision.py" output="screen">
+        <param name="vision_topic" value="/robot/vision_alt"/>
+        <param name="camera_topic" value="$(arg camera_topic)"/>
+        <param name="model_path" value="$(find robot)/vision/A"/>
     </node>
     
     <!-- Debug and Monitoring (optional) -->
-    <node name="emotionMonitor" pkg="robot" type="EmotionMonitor.py" output="screen" if="$(arg debug)">
-        <param name="monitor_rate" value="1.0"/>
-    </node>
+    <group if="$(arg debug)">
+        <node name="emotionMonitor" pkg="robot" type="EmotionMonitor.py" output="screen">
+            <param name="monitor_rate" value="1.0"/>
+            <param name="log_file" value="/tmp/emotion_debug.log"/>
+        </node>
+    </group>
+    
+    <!-- RViz Visualization (optional) -->
+    <node name="rviz" pkg="rviz" type="rviz" 
+          args="-d $(find robot)/config/robot_emotion.rviz" 
+          if="false" />
     
 </launch>
